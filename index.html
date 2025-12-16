@@ -13,7 +13,26 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix@2.2.0"></script>
   </head>
   <body>
-    <div id="desktop">
+    <div id="lock-screen">
+      <div class="lock-screen-box">
+        <h2>Sign in</h2>
+        <form id="login-form">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" name="username" required>
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <div class="password-wrapper">
+              <input type="password" id="password" name="password" required>
+              <span class="hint-icon" data-tooltip="just type any password in">?</span>
+            </div>
+          </div>
+          <button type="submit" id="login-button">Enter</button>
+        </form>
+      </div>
+    </div>
+    <div id="desktop" class="hidden">
       <!-- Desktop Icons Container -->
       <div id="desktop-icons"></div>
       

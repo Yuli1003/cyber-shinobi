@@ -267,6 +267,139 @@ body {
   transform: scale(2) !important;
 }
 
+/* Lock Screen */
+#lock-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(135deg, #1e3a5f 0%, #0c1929 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  transition: opacity 0.5s ease-out;
+}
+
+#lock-screen.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.lock-screen-box {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-align: center;
+  color: white;
+  width: 350px;
+  transition: transform 0.1s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  50% { transform: translateX(5px); }
+  75% { transform: translateX(-5px); }
+}
+
+.lock-screen-box.shake {
+  animation: shake 0.3s;
+}
+
+.lock-screen-box h2 {
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 14px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 5px;
+  color: white;
+}
+
+#login-button {
+  width: 100%;
+  padding: 10px;
+  background: #0078d4;
+  border: none;
+  border-radius: 5px;
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#login-button:hover {
+  background-color: #005a9e;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+}
+
+.hint-icon {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  cursor: help;
+}
+
+.hint-icon:hover::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1;
+}
+
+#login-error {
+  color: #ff4d4d;
+  margin-top: 10px;
+}
+
+#desktop.hidden {
+  display: none;
+}
+
 /* Desktop Icons */
 #desktop-icons {
   padding: 20px;
@@ -903,10 +1036,54 @@ body {
   right: 0;
   bottom: 0;
   z-index: 1;
-  transition: background-color 0.3s, color 0.3s;
+  transition: background-color 0.18s linear, color 0.18s linear;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Glitchy blink animation - short, non-smooth jitter + color flashes */
+.ascii-output.blink-glitch {
+  animation: blinkGlitch 420ms steps(6, end);
+  transition: none !important;
+}
+
+@keyframes blinkGlitch {
+  0% {
+    opacity: 1;
+    transform: translateX(0) skewX(0deg) scale(1);
+    text-shadow: none;
+  }
+  10% {
+    opacity: 0.85;
+    transform: translateX(-2px) skewX(-6deg) scale(1.01);
+    text-shadow: 2px 0 0 rgba(196,30,58,0.9);
+  }
+  20% {
+    opacity: 1;
+    transform: translateX(3px) skewX(4deg) scale(0.995);
+    text-shadow: -2px 0 0 rgba(0,0,0,0.9);
+  }
+  30% {
+    opacity: 0.7;
+    transform: translateX(-4px) skewX(-8deg) scale(1.02);
+    text-shadow: 3px 0 0 rgba(255,255,255,0.85);
+  }
+  50% {
+    opacity: 0.95;
+    transform: translateX(2px) skewX(3deg) scale(0.999);
+    text-shadow: -3px 0 0 rgba(196,30,58,0.7);
+  }
+  70% {
+    opacity: 0.8;
+    transform: translateX(-1px) skewX(-4deg) scale(1.01);
+    text-shadow: 2px 0 0 rgba(0,0,0,0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) skewX(0deg) scale(1);
+    text-shadow: none;
+  }
 }
 
 /* Color modes - cycled by blinking */
