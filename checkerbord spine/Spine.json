@@ -1,0 +1,46 @@
+{"skeleton":{"images":""},
+"bones":[{"name":"root"}],
+"slots":[
+	{"name":"slice18","bone":"root","attachment":"slice18"},
+	{"name":"slice17","bone":"root","attachment":"slice17"},
+	{"name":"slice16","bone":"root","attachment":"slice16"},
+	{"name":"slice15","bone":"root","attachment":"slice15"},
+	{"name":"slice14","bone":"root","attachment":"slice14"},
+	{"name":"slice13","bone":"root","attachment":"slice13"},
+	{"name":"slice12","bone":"root","attachment":"slice12"},
+	{"name":"slice11","bone":"root","attachment":"slice11"},
+	{"name":"slice10","bone":"root","attachment":"slice10"},
+	{"name":"slice9","bone":"root","attachment":"slice9"},
+	{"name":"slice8","bone":"root","attachment":"slice8"},
+	{"name":"slice7","bone":"root","attachment":"slice7"},
+	{"name":"slice6","bone":"root","attachment":"slice6"},
+	{"name":"slice5","bone":"root","attachment":"slice5"},
+	{"name":"slice4","bone":"root","attachment":"slice4"},
+	{"name":"slice3","bone":"root","attachment":"slice3"},
+	{"name":"slice2","bone":"root","attachment":"slice2"},
+	{"name":"slice1","bone":"root","attachment":"slice1"}
+],
+"skins":{
+	"default":{
+		"slice18":{"slice18":{"x":3285,"y":417.5,"width":128,"height":223}},
+		"slice17":{"slice17":{"x":2694,"y":973,"width":524,"height":300}},
+		"slice16":{"slice16":{"x":2173,"y":969.5,"width":524,"height":299}},
+		"slice15":{"slice15":{"x":2304,"y":807,"width":186,"height":84}},
+		"slice14":{"slice14":{"x":3187.5,"y":461.5,"width":89,"height":155}},
+		"slice13":{"slice13":{"x":1931.5,"y":130,"width":401,"height":230}},
+		"slice12":{"slice12":{"x":1735.5,"y":355,"width":127,"height":222}},
+		"slice11":{"slice11":{"x":1721,"y":572,"width":128,"height":222}},
+		"slice10":{"slice10":{"x":1931.5,"y":130,"width":401,"height":230}},
+		"slice9":{"slice9":{"x":2706,"y":324.5,"width":206,"height":359}},
+		"slice8":{"slice8":{"x":2694,"y":309.5,"width":206,"height":359}},
+		"slice7":{"slice7":{"x":2587,"y":268.5,"width":206,"height":359}},
+		"slice6":{"slice6":{"x":2622,"y":282.5,"width":206,"height":359}},
+		"slice5":{"slice5":{"x":2587,"y":264.5,"width":206,"height":359}},
+		"slice4":{"slice4":{"x":2560,"y":248.5,"width":206,"height":359}},
+		"slice3":{"slice3":{"x":3252.5,"y":230,"width":31,"height":154}},
+		"slice2":{"slice2":{"x":2071.5,"y":259.5,"width":89,"height":87}},
+		"slice1":{"slice1":{"x":2791.5,"y":677.5,"width":953,"height":123}}
+	}
+},
+"animations":{"animation":{}}
+}

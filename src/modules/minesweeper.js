@@ -30,7 +30,7 @@ export async function startMinesweeperGame() {
       width: 100%;
       height: 100%;
       pointer-events: none; /* Let clicks pass through to tiles */
-      z-index: 50;
+      z-index: 1800;
     `
     document.body.appendChild(gameContainer)
   }

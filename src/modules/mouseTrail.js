@@ -39,7 +39,7 @@ export async function startMouseTrail() {
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 9999;
+      z-index: 1950;
       overflow: hidden;
     `
     document.body.appendChild(cursorContainer)
@@ -192,7 +192,7 @@ function spawnCursor(index) {
     background-repeat: no-repeat;
     pointer-events: none;
     will-change: transform;
-    z-index: 10000;
+    z-index: 1949;
   `
   // Initially place off screen
   el.style.transform = `translate(-100px, -100px)`

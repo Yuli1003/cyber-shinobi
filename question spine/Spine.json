@@ -1,0 +1,22 @@
+{"skeleton":{"images":""},
+"bones":[{"name":"root"}],
+"slots":[
+	{"name":"slice6","bone":"root","attachment":"slice6"},
+	{"name":"slice5","bone":"root","attachment":"slice5"},
+	{"name":"slice4","bone":"root","attachment":"slice4"},
+	{"name":"slice3","bone":"root","attachment":"slice3"},
+	{"name":"slice2","bone":"root","attachment":"slice2"},
+	{"name":"slice1","bone":"root","attachment":"slice1"}
+],
+"skins":{
+	"default":{
+		"slice6":{"slice6":{"x":2232,"y":807,"width":438,"height":28}},
+		"slice5":{"slice5":{"x":3228,"y":54,"width":438,"height":28}},
+		"slice4":{"slice4":{"x":3228,"y":28,"width":438,"height":28}},
+		"slice3":{"slice3":{"x":3069,"y":579.5,"width":276,"height":49}},
+		"slice2":{"slice2":{"x":2407.5,"y":689.5,"width":657,"height":41}},
+		"slice1":{"slice1":{"x":2638,"y":422,"width":556,"height":12}}
+	}
+},
+"animations":{"animation":{}}
+}

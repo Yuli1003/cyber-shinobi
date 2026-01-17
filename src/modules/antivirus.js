@@ -221,7 +221,7 @@ export function showAntivirusInfoPage() {
     box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     border-radius: 8px;
     overflow: hidden;
-    z-index: 1000;
+    z-index: 900;
     display: flex;
     flex-direction: column;
   `
@@ -549,32 +549,151 @@ function triggerSingleGlitch() {
  * Create a full-screen black overlay to simulate the screen going black
  */
 export function createBlackScreen() {
-  // Avoid duplicate overlays
-  if (document.getElementById('black-screen-overlay')) return
+  return new Promise((resolve) => {
+    // Avoid duplicate overlays
+    if (document.getElementById('black-screen-overlay')) {
+      const overlay = document.getElementById('black-screen-overlay');
+      if (overlay.style.opacity === '1') {
+        resolve();
+      } else {
+        setTimeout(resolve, 600);
+      }
+      return;
+    }
 
-  const overlay = document.createElement('div')
-  overlay.id = 'black-screen-overlay'
-  overlay.style.cssText = `
-    position: fixed;
-    left: 0;
-    top: 0;
-    width: 100vw;
-    height: 100vh;
-    background: black;
-    opacity: 0;
-    z-index: 999999;
-    pointer-events: none;
-    transition: opacity 600ms ease-in;
-  `
+    const overlay = document.createElement('div');
+    overlay.id = 'black-screen-overlay';
+    overlay.style.cssText = `
+      position: fixed;
+      left: 0;
+      top: 0;
+      width: 100vw;
+      height: 100vh;
+      background: black;
+      opacity: 0;
+      z-index: 1999;
+      pointer-events: none;
+      transition: opacity 600ms ease-in;
+    `;
 
-  document.body.appendChild(overlay)
+    document.body.appendChild(overlay);
 
-  // Fade in to black
-  requestAnimationFrame(() => {
-    overlay.style.opacity = '1'
-  })
+    // Fade in to black
+    requestAnimationFrame(() => {
+      overlay.style.opacity = '1';
+    });
 
-  // 3 seconds after the black screen appears, spawn justice spine images
+    setTimeout(resolve, 600); // Resolve after transition duration
+  });
+}
+
+/**
+ * Spawn Justice Spine images after black screen
+ */
+async function spawnJusticeSpine() {
+  try {
+    const response = await fetch('justice spine/Spine.json')
+    const text = await response.text()
+    
+    // Extract attachment names
+    const slotsMatch = text.match(/"slots"\s*:\s*\[([\s\S]*?)\]/)
+    const slotsContent = slotsMatch ? slotsMatch[1] : ''
+    const attachmentRegex = /"attachment"\s*:\s*"([^"]+)"/g
+    let match
+    const attachments = []
+    while ((match = attachmentRegex.exec(slotsContent)) !== null) {
+       attachments.push(match[1])
+    }
+    
+    // Extract coordinates
+    const coordRegex = /"x"\s*:\s*([\d\.-]+)\s*,\s*"y"\s*:\s*([\d\.-]+)\s*,\s*"width"\s*:\s*(\d+)\s*,\s*"height"\s*:\s*(\d+)/g
+    const skinsStart = text.indexOf('"skins"')
+    const skinsText = skinsStart > -1 ? text.substring(skinsStart) : text
+    
+    const coords = []
+    while ((match = coordRegex.exec(skinsText)) !== null) {
+      coords.push({
+        x: parseFloat(match[1]),
+        y: parseFloat(match[2]),
+        width: parseFloat(match[3]),
+        height: parseFloat(match[4])
+      })
+    }
+    
+    // Combine data
+    const spineData = []
+    const count = Math.min(attachments.length, coords.length)
+    for (let i = 0; i < count; i++) {
+      spineData.push({
+        ...coords[i],
+        attachment: attachments[i]
+      })
+    }
+    
+    // Sort: slice 21 first, others random
+    const firstIndex = spineData.findIndex(d => d.attachment.includes('21'))
+    let firstItem = null
+    if (firstIndex !== -1) {
+      firstItem = spineData.splice(firstIndex, 1)[0]
+    }
+    
+    // Shuffle remaining
+    for (let i = spineData.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [spineData[i], spineData[j]] = [spineData[j], spineData[i]];
+    }
+    
+    if (firstItem) spineData.unshift(firstItem)
+    
+    const centerX = window.innerWidth / 2
+    const centerY = window.innerHeight / 2
+    
+    spineData.forEach((data, index) => {
+      setTimeout(() => {
+        const img = document.createElement('img')
+        img.src = `justice spine/${data.attachment}.png`
+        
+        // Center-based positioning (Spine Y is up, screen Y is down)
+        const x = centerX + data.x
+        const y = centerY - data.y
+        
+        img.style.cssText = `
+          position: fixed;
+          left: ${x}px;
+          top: ${y}px;
+          width: ${data.width}px;
+          height: ${data.height}px;
+          transform: translate(-50%, -50%) scale(0.1);
+          opacity: 0;
+          z-index: 2000;
+          pointer-events: none;
+          filter: brightness(5) contrast(2);
+        `
+        document.body.appendChild(img)
+        
+        // Glitchy appearance
+        requestAnimationFrame(() => {
+          img.style.transition = 'transform 0.1s cubic-bezier(0.1, 1.5, 0.2, 1), opacity 0.1s, filter 0.2s'
+          img.style.opacity = '1'
+          img.style.transform = 'translate(-50%, -50%) scale(1)'
+          img.style.filter = 'brightness(1) contrast(1)'
+          
+            // Small Y-axis pixel glitch (toned down like desktop icon transition)
+            if (Math.random() > 0.4) {
+             const gy = Math.round((Math.random() - 0.5) * 6) // ±3px
+             img.style.transform = `translate(-50%, calc(-50% + ${gy}px))`
+             setTimeout(() => {
+               img.style.transform = 'translate(-50%, -50%)'
+             }, 120)
+            }
+        })
+        
+      }, index * (100 + Math.random() * 150))
+    })
+    
+  } catch (e) {
+    console.error("Failed to spawn justice spine", e)
+  }
 }
 
 /**

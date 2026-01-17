@@ -1,0 +1,32 @@
+{"skeleton":{"images":""},
+"bones":[{"name":"root"}],
+"slots":[
+	{"name":"slice9","bone":"root","attachment":"slice9"},
+	{"name":"slice8","bone":"root","attachment":"slice8"},
+	{"name":"slice7","bone":"root","attachment":"slice7"},
+	{"name":"slice6","bone":"root","attachment":"slice6"},
+	{"name":"slice5","bone":"root","attachment":"slice5"},
+	{"name":"slice4","bone":"root","attachment":"slice4"},
+	{"name":"slice3","bone":"root","attachment":"slice3"},
+	{"name":"slice2","bone":"root","attachment":"slice2"},
+	{"name":"slice1","bone":"root","attachment":"slice1"},
+	{"name":"calc.png","bone":"root","attachment":"calc.png_2"},
+	{"name":"calc.png","bone":"root","attachment":"calc.png"}
+],
+"skins":{
+	"default":{
+		"slice9":{"slice9":{"x":2974,"y":355.5,"width":62,"height":65}},
+		"slice8":{"slice8":{"x":3005,"y":323.5,"width":62,"height":65}},
+		"slice7":{"slice7":{"x":2974,"y":291.5,"width":62,"height":65}},
+		"slice6":{"slice6":{"x":3016,"y":199.5,"width":62,"height":65}},
+		"slice5":{"slice5":{"x":2994.5,"y":199.5,"width":63,"height":65}},
+		"slice4":{"slice4":{"x":3016,"y":219.5,"width":62,"height":65}},
+		"slice3":{"slice3":{"x":3046.5,"y":231.5,"width":63,"height":65}},
+		"slice2":{"slice2":{"x":3016,"y":199.5,"width":62,"height":65}},
+		"slice1":{"slice1":{"x":2974,"y":355.5,"width":62,"height":65}},
+		"calc.png":{"calc.png":{"x":3085.5,"y":447.5,"width":59,"height":41}},
+		"calc.png":{"calc.png":{"x":3238.5,"y":337,"width":59,"height":270}}
+	}
+},
+"animations":{"animation":{}}
+}

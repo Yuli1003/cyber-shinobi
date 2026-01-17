@@ -28,7 +28,7 @@ export async function startTextExplorer() {
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 60; /* Above desktop, below warnings */
+      z-index: 1948; /* Above desktop, below warnings */
       overflow: hidden;
     `
     document.body.appendChild(explorerContainer)

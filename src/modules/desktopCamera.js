@@ -141,7 +141,7 @@ export async function startDesktopAsciiCamera() {
     position: fixed;
     top: 20px;           /* LOCATION: Vertical position from top */
     right: 20px;         /* LOCATION: Horizontal position from right */
-    z-index: 9998;
+    z-index: 1901;
     font-family: 'Courier New', monospace;
     font-size: 10px;      /* SIZE: Adjust this to make ASCII art bigger/smaller */
     line-height: 1;

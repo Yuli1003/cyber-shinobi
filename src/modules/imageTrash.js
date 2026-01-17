@@ -28,7 +28,7 @@ export async function startImageTrash() {
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 61; /* distinct layer */
+      z-index: 1850; /* distinct layer */
       overflow: hidden;
     `
     document.body.appendChild(trashContainer)

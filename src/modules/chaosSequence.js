@@ -8,13 +8,20 @@ import { startDesktopAsciiCamera } from './desktopCamera.js'
 import { startImageTrash } from './imageTrash.js'
 import { startMinesweeperGame } from './minesweeper.js'
 import { startTextExplorer } from './textExplorer.js'
-import { createBlackScreen } from './antivirus.js'
 
 let isSequenceActive = false
 let mouseJitterInterval = null
 let extrasContainer = null
 let blackScreenScheduled = false
 let blackScreenTimeoutId = null
+let windowsContainer = null
+let weaponsContainer = null
+let lastWordsContainer = null
+let blendingImageContainer = null
+let glitchyIconsContainer = null
+let questionContainer = null
+let checkerboardContainer = null
+let redOverlay = null
 
 export function isChaosSequenceActive() {
   return isSequenceActive
@@ -179,6 +186,206 @@ function startBlueScreenGlitch(canvas, ctx, cols, rows, pixelSize, baseColor) {
   drawGlitch()
 }
 
+async function startRedSequence() {
+    console.log('🔴 Starting Red Screen Sequence...');
+    
+    redOverlay = document.createElement('div');
+    redOverlay.id = 'red-screen-overlay';
+    redOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: #400000; /* Dark Red */
+        z-index: 2500;
+        pointer-events: none;
+    `;
+    document.body.appendChild(redOverlay);
+
+    // 2 seconds after screen goes red
+    setTimeout(startWindowsSequence, 2000);
+}
+
+async function startWindowsSequence() {
+    console.log('🪟 Starting Windows Sequence...');
+    const windowsData = await parseSpineFile('windows spine/Spine.json', 'windows');
+    
+    // Sort by Y descending (highest Y first)
+    windowsData.sort((a, b) => b.y - a.y);
+
+    windowsContainer = createContainer('windows-container', 2600);
+    
+    const interval = 200;
+    windowsData.forEach((data, index) => {
+        setTimeout(() => {
+            spawnImage(data, windowsContainer);
+        }, index * interval);
+    });
+    
+    const totalDuration = windowsData.length * interval;
+
+    // 2 seconds after windows START appearing
+    setTimeout(startWeaponsSequence, 2000);
+
+    // After windows ALL appear
+    setTimeout(startLastWordsSequence, totalDuration);
+}
+
+async function startWeaponsSequence() {
+    console.log('⚔️ Starting Weapons Sequence...');
+    const weaponsData = await parseSpineFile('weapons spine/Spine.json', 'weapons');
+    shuffle(weaponsData);
+
+    weaponsContainer = createContainer('weapons-container', 2700);
+    
+    weaponsData.forEach((data, index) => {
+        setTimeout(() => {
+            spawnImage(data, weaponsContainer);
+        }, index * 150);
+    });
+}
+
+async function startLastWordsSequence() {
+    console.log('💬 Starting Last Words Sequence...');
+    const wordsData = await parseSpineFile('last words spine/Spine.json', 'last-words');
+    
+    // Sort by Y descending
+    wordsData.sort((a, b) => b.y - a.y);
+
+    lastWordsContainer = createContainer('last-words-container', 2800);
+    
+    const interval = 300;
+    wordsData.forEach((data, index) => {
+        setTimeout(() => {
+            spawnImage(data, lastWordsContainer);
+        }, index * interval);
+    });
+
+    const totalDuration = wordsData.length * interval;
+
+    // 2 seconds after start
+    setTimeout(startColorBlendingImage, 2000);
+
+    // 3 seconds after start
+    setTimeout(startGlitchyIcons, 3000);
+
+    // After all show up
+    setTimeout(startQuestionSequence, totalDuration);
+}
+
+async function startColorBlendingImage() {
+    console.log('🎨 Starting Color Blending Image...');
+    const imageData = await parseSpineFile('image - color blending spine/Spine.json', 'blending-image');
+    
+    blendingImageContainer = createContainer('blending-image-container', 2900);
+
+    if (imageData.length > 0) {
+        const img = spawnImage(imageData[0], blendingImageContainer);
+        img.style.mixBlendMode = 'color';
+    }
+}
+
+async function startGlitchyIcons() {
+    console.log('📀 Starting Glitchy Icons...');
+    const mineData = await parseSpineFile('last mine spine/Spine.json', 'last-mine');
+    const dvdData = await parseSpineFile('dvd spine/Spine.json', 'dvd');
+    
+    const allData = [...mineData, ...dvdData];
+    shuffle(allData);
+
+    glitchyIconsContainer = createContainer('glitchy-icons-container', 3000);
+
+    allData.forEach((data, index) => {
+        setTimeout(() => {
+            const img = spawnImage(data, glitchyIconsContainer);
+            startPixelStutter(img);
+        }, index * 100);
+    });
+}
+
+async function startQuestionSequence() {
+    console.log('❓ Starting Question Sequence...');
+    const questionData = await parseSpineFile('question spine/Spine.json', 'question');
+    
+    questionContainer = createContainer('question-container', 3100);
+    
+    const interval = 200;
+    questionData.forEach((data, index) => {
+        setTimeout(() => {
+            spawnImage(data, questionContainer);
+        }, index * interval);
+    });
+
+    const totalDuration = questionData.length * interval;
+    setTimeout(startCheckerboardSequence, totalDuration);
+}
+
+async function startCheckerboardSequence() {
+    console.log('🏁 Starting Checkerboard Sequence...');
+    const checkerData = await parseSpineFile('checkerbord spine/Spine.json', 'checkerboard');
+    
+    checkerboardContainer = createContainer('checkerboard-container', 3200);
+    
+    checkerData.forEach((data, index) => {
+        setTimeout(() => {
+            spawnImage(data, checkerboardContainer);
+        }, index * 100);
+    });
+}
+
+function createContainer(id, zIndex) {
+    let container = document.getElementById(id);
+    if (!container) {
+        container = document.createElement('div');
+        container.id = id;
+        container.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: ${zIndex};
+        `;
+        document.body.appendChild(container);
+    }
+    return container;
+}
+
+function spawnImage(data, container) {
+    const img = document.createElement('img');
+    img.src = data.path;
+
+    const left = data.x;
+    const top = data.y;
+
+    img.style.cssText = `
+        position: absolute;
+        left: ${left}px;
+        top: ${top}px;
+        width: ${data.width}px;
+        height: ${data.height}px;
+        object-fit: contain;
+        transform: translate(-50%, -50%);
+    `;
+    
+    container.appendChild(img);
+    return img;
+}
+
+function startPixelStutter(element) {
+    const interval = setInterval(() => {
+        if (!element.isConnected) {
+            clearInterval(interval);
+            return;
+        }
+        const tx = (Math.random() - 0.5) * 4;
+        const ty = (Math.random() - 0.5) * 4;
+        element.style.transform = `translate(calc(-50% + ${tx}px), calc(-50% + ${ty}px))`;
+    }, 50);
+}
+
 /**
  * Make the mouse cursor move unwantedly every couple of seconds
  */
@@ -305,7 +512,7 @@ async function startExtrasSpine() {
       width: 100%;
       height: 100%;
       pointer-events: none;
-      z-index: 5000;
+      z-index: 1900;
       overflow: hidden;
     `
     document.body.appendChild(extrasContainer)
@@ -332,10 +539,15 @@ function spawnExtrasIcon(data, canvasHeight) {
 
   // Schedule a single black screen 10s after the first extras icon spawns
   if (!blackScreenScheduled) {
-    blackScreenScheduled = true
+    blackScreenScheduled = true;
     blackScreenTimeoutId = setTimeout(() => {
-      createBlackScreen()
-    }, 10000)
+      startBlackPixelatedTransition().then(() => {
+        // 3 seconds after the screen is black, start the justice sequence
+        setTimeout(() => {
+          startJusticeSpine();
+        }, 3000);
+      });
+    }, 10000);
   }
   
   // Extract icon name from attachment (e.g., "browser.png_4" -> "browser.png")
@@ -397,6 +609,278 @@ function spawnExtrasIcon(data, canvasHeight) {
   }, glitchInterval)
 }
 
+// --- New Minefield Sequence ---
+let minefieldContainer = null;
+let drawingContainer = null;
+let daggersContainer = null;
+
+/**
+ * Generic utility to parse a Spine JSON file.
+ * @param {string} path - Path to the Spine JSON file.
+ * @param {string} origin - A string to identify the origin of the spine data.
+ * @returns {Promise<Array>} - A promise that resolves to an array of spine data objects.
+ */
+async function parseSpineFile(path, origin) {
+  try {
+    const response = await fetch(path);
+    const spineJson = await response.json();
+    
+    const skin = spineJson.skins.default;
+    if (!skin) return [];
+
+    const folder = path.substring(0, path.lastIndexOf('/'));
+
+    const spineData = spineJson.slots.map(slot => {
+      const attachmentName = slot.attachment;
+      if (!skin[attachmentName] || !skin[attachmentName][attachmentName]) {
+        return null;
+      }
+      const skinAttachment = skin[attachmentName][attachmentName];
+      
+      return {
+        origin: origin,
+        attachment: attachmentName,
+        path: `${folder}/${attachmentName}.png`,
+        ...skinAttachment
+      };
+    }).filter(Boolean);
+
+    return spineData;
+  } catch (e) {
+    console.error(`Failed to parse spine file at ${path}:`, e);
+    return [];
+  }
+}
+
+/**
+ * Starts the sequence to place reactive mines on the screen.
+ */
+async function startMinefieldSequence() {
+    console.log('💣 Starting Minefield Sequence...');
+    
+    const mineSpine2Data = await parseSpineFile('mine spine 2/Spine.json', 'mine-spine-2');
+    const otherMineData = await parseSpineFile('other mine/Spine.json', 'other-mine');
+
+    let allMinesData = [...mineSpine2Data, ...otherMineData];
+    
+    shuffle(allMinesData);
+
+    const maxDelay = 30; // 10 + 20
+    const totalDuration = allMinesData.length * maxDelay;
+
+    allMinesData.forEach((mineData, index) => {
+        const delay = index * (10 + Math.random() * 20);
+        setTimeout(() => {
+            spawnReactiveMine(mineData);
+        }, delay); 
+    });
+
+    setTimeout(() => {
+        startDrawingAndDaggerSequence();
+    }, totalDuration);
+}
+
+/**
+ * Spawns a single reactive mine on the screen.
+ * @param {object} data - The spine data for the mine.
+ */
+function spawnReactiveMine(data) {
+    if (!minefieldContainer) {
+        minefieldContainer = document.createElement('div');
+        minefieldContainer.id = 'minefield-container';
+        minefieldContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2100;
+        `;
+        document.body.appendChild(minefieldContainer);
+    }
+
+    const tile = document.createElement('div');
+    tile.dataset.origin = data.origin; // Set the origin
+    const canvasHeight = window.innerHeight;
+
+    // Center-based position
+    const left = data.x;
+    const top = canvasHeight - data.y;
+
+    tile.style.cssText = `
+        position: absolute;
+        left: ${left}px;
+        top: ${top}px;
+        width: ${data.width}px;
+        height: ${data.height}px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        pointer-events: auto;
+        cursor: pointer;
+        transition: transform 0.2s ease;
+        transform: translate(-50%, -50%);
+        background-image: url('${data.path}');
+        background-size: contain;
+        background-repeat: no-repeat;
+    `;
+
+    tile.onmouseenter = () => tile.style.transform = 'translate(-50%, -50%) scale(1.1)';
+    tile.onmouseleave = () => tile.style.transform = 'translate(-50%, -50%) scale(1)';
+
+    tile.onclick = () => {
+        // On click, show a random number like in the original minesweeper
+        tile.style.backgroundImage = 'none';
+        tile.style.backgroundColor = '#d0d0d0';
+        tile.style.border = '1px solid #808080';
+        
+        const num = Math.floor(Math.random() * 4); // 0-3
+        if (num > 0) {
+            const colors = ['', '#0000ff', '#008000', '#ff0000'];
+            tile.style.color = colors[num] || 'black';
+            tile.style.fontWeight = 'bold';
+            tile.style.fontSize = Math.min(data.width, data.height) * 0.8 + 'px';
+            tile.style.fontFamily = "'VT323', monospace";
+            tile.textContent = num;
+        }
+
+        // Make it non-interactive after click
+        tile.onclick = null;
+        tile.onmouseenter = null;
+        tile.onmouseleave = null;
+        tile.style.cursor = 'default';
+    };
+
+    minefieldContainer.appendChild(tile);
+}
+
+/**
+ * Spawns the image from the drawing spine.
+ * @param {object} data - The spine data for the drawing.
+ */
+function spawnDrawingImage(data) {
+    if (!drawingContainer) {
+        drawingContainer = document.createElement('div');
+        drawingContainer.id = 'drawing-container';
+        drawingContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2050; 
+        `;
+        document.body.appendChild(drawingContainer);
+    }
+
+    const img = document.createElement('img');
+    img.src = data.path;
+    const canvasHeight = window.innerHeight;
+
+    const left = data.x - data.width / 2;
+    const top = canvasHeight - data.y - data.height / 2;
+
+    img.style.cssText = `
+        position: absolute;
+        left: ${left}px;
+        top: ${top}px;
+        width: ${data.width}px;
+        height: ${data.height}px;
+        object-fit: contain;
+    `;
+    
+    drawingContainer.appendChild(img);
+}
+
+/**
+ * Spawns a dagger image.
+ * @param {object} data - The spine data for the dagger.
+ */
+function spawnDaggerImage(data) {
+    if (!daggersContainer) {
+        daggersContainer = document.createElement('div');
+        daggersContainer.id = 'daggers-container';
+        daggersContainer.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2200; 
+        `;
+        document.body.appendChild(daggersContainer);
+    }
+
+    const img = document.createElement('img');
+    img.src = data.path;
+    const canvasHeight = window.innerHeight;
+
+    const left = data.x - data.width / 2;
+    const top = canvasHeight - data.y - data.height / 2;
+
+    img.style.cssText = `
+        position: absolute;
+        left: ${left}px;
+        top: ${top}px;
+        width: ${data.width}px;
+        height: ${data.height}px;
+        object-fit: contain;
+    `;
+    
+    daggersContainer.appendChild(img);
+}
+
+
+/**
+ * Starts the sequence of drawing, removing mines, and adding daggers.
+ */
+async function startDrawingAndDaggerSequence() {
+    console.log('🔪 Starting Drawing and Dagger Sequence...');
+
+    // 1. Spawn the drawing image
+    const drawingData = await parseSpineFile('drawing spine/Spine.json');
+    if (drawingData.length > 0) {
+        spawnDrawingImage(drawingData[0]);
+    }
+
+    // 2. Get mines to remove and daggers to add
+    const otherMines = Array.from(document.querySelectorAll('[data-origin="other-mine"]'));
+    const daggersData = await parseSpineFile('daggers spine/Spine.json');
+
+    shuffle(otherMines);
+    shuffle(daggersData);
+
+    // 3. Start the simultaneous removal and addition
+    const interval = 50; // ms between each swap (faster)
+    let currentIndex = 0;
+
+    const loop = setInterval(() => {
+        if (currentIndex >= otherMines.length && currentIndex >= daggersData.length) {
+            clearInterval(loop);
+            setTimeout(startRedSequence, 3000);
+            return;
+        }
+
+        // Remove a mine
+        if (currentIndex < otherMines.length) {
+            const mineToRemove = otherMines[currentIndex];
+            mineToRemove.remove();
+        }
+
+        // Add a dagger
+        if (currentIndex < daggersData.length) {
+            const daggerToAdd = daggersData[currentIndex];
+            spawnDaggerImage(daggerToAdd);
+        }
+        
+        currentIndex++;
+    }, interval);
+}
+
+
 /**
  * Stop the chaos sequence and clean up
  */
@@ -415,10 +899,329 @@ export function stopChaosSequence() {
     extrasContainer = null
   }
 
+  // Clean up justice container
+  if (justiceContainer) {
+    justiceContainer.remove();
+    justiceContainer = null;
+  }
+
+  // Clean up minefield container
+  if (minefieldContainer) {
+    minefieldContainer.remove();
+    minefieldContainer = null;
+  }
+
+  // Clean up drawing container
+  if (drawingContainer) {
+    drawingContainer.remove();
+    drawingContainer = null;
+  }
+
+  // Clean up daggers container
+  if (daggersContainer) {
+    daggersContainer.remove();
+    daggersContainer = null;
+  }
+  
+  const blackCanvas = document.getElementById('black-glitch-canvas');
+  if (blackCanvas) blackCanvas.remove();
+  
+  // We might want to keep the black overlay if it's a permanent state, 
+  // but for "stopChaosSequence" which implies cleanup/reset, we should probably remove it.
+  const blackOverlay = document.getElementById('black-screen-overlay');
+  if (blackOverlay) blackOverlay.remove();
+
   // Clear any scheduled black screen
   if (blackScreenTimeoutId) {
     clearTimeout(blackScreenTimeoutId)
     blackScreenTimeoutId = null
     blackScreenScheduled = false
   }
+
+  if (windowsContainer) { windowsContainer.remove(); windowsContainer = null; }
+  if (weaponsContainer) { weaponsContainer.remove(); weaponsContainer = null; }
+  if (lastWordsContainer) { lastWordsContainer.remove(); lastWordsContainer = null; }
+  if (blendingImageContainer) { blendingImageContainer.remove(); blendingImageContainer = null; }
+  if (glitchyIconsContainer) { glitchyIconsContainer.remove(); glitchyIconsContainer = null; }
+  if (questionContainer) { questionContainer.remove(); questionContainer = null; }
+  if (checkerboardContainer) { checkerboardContainer.remove(); checkerboardContainer = null; }
+  if (redOverlay) { redOverlay.remove(); redOverlay = null; }
+}
+
+// New container for the justice spine
+let justiceContainer = null;
+
+/**
+ * Utility to shuffle an array
+ * @param {Array} array
+ */
+function shuffle(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]];
+  }
+}
+
+/**
+ * Load and display justice spine images in a glitchy, random order.
+ */
+async function startJusticeSpine() {
+  console.log('⚖️ Starting Justice Spine Sequence...');
+
+  try {
+    // Load Spine Data
+    const response = await fetch('justice spine/Spine.json');
+    const text = await response.text();
+
+    // This is a simplified and potentially brittle parser.
+    // It assumes a specific structure and may fail on different Spine JSONs.
+    const spineJson = JSON.parse(text);
+
+    const spineData = spineJson.slots.map(slot => {
+      const attachmentName = slot.attachment;
+      const skinAttachment = spineJson.skins.default[attachmentName][attachmentName];
+      return {
+        attachment: attachmentName,
+        ...skinAttachment
+      };
+    });
+
+    // Sort all slices from top to bottom based on their y-coordinate
+    spineData.sort((a, b) => b.y - a.y);
+
+    // Create container
+    justiceContainer = document.createElement('div');
+    justiceContainer.id = 'justice-spine-container';
+    justiceContainer.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2000;
+      overflow: hidden;
+    `;
+    document.body.appendChild(justiceContainer);
+
+    // Spawn each image in the specified order with a glitchy delay
+    const canvasHeight = window.innerHeight;
+    spineData.forEach((data, index) => {
+      // Stagger the appearance
+      const delay = index * 80; // Faster, more consistent appearance
+      setTimeout(() => {
+        spawnJusticeIcon(data, canvasHeight);
+      }, delay);
+    });
+
+    // Schedule the minefield sequence
+    setTimeout(() => {
+        startMinefieldSequence();
+    }, 2000);
+
+  } catch (e) {
+    console.error('Failed to load justice spine:', e);
+  }
+}
+
+/**
+ * Spawn a single justice icon with a very glitchy appearance
+ */
+function spawnJusticeIcon(data, canvasHeight) {
+  const el = document.createElement('div');
+  const img = document.createElement('img');
+
+  const imgPath = `justice spine/${data.attachment}.png`;
+  img.src = imgPath;
+  img.style.cssText = `
+    width: ${data.width}px;
+    height: ${data.height}px;
+    object-fit: contain;
+  `;
+
+  // Position is centered
+  const targetX = data.x - data.width / 2;
+  const targetY = canvasHeight - data.y - data.height / 2;
+
+  el.style.cssText = `
+    position: absolute;
+    left: ${targetX}px;
+    top: ${targetY}px;
+    pointer-events: none;
+    transform-origin: center;
+  `;
+
+  el.appendChild(img);
+  justiceContainer.appendChild(el);
+
+  // Desktop-style glitch animation - smaller and more controlled
+  const glitchDuration = 150 + Math.random() * 100; // shorter duration
+  const glitchInterval = 20;
+  const glitchCount = glitchDuration / glitchInterval;
+  let glitchCounter = 0;
+  
+  const glitchTimer = setInterval(() => {
+    if (glitchCounter >= glitchCount) {
+      clearInterval(glitchTimer);
+      // Final state - continuous jitter
+      img.style.opacity = '1';
+      img.style.filter = '';
+      startContinuousJitter(img);
+      return;
+    }
+    
+    // Effects inspired by desktop icons - smaller movements
+    const glitchEffects = [
+      `translateX(${(Math.random() - 0.5) * 8}px) skewX(${(Math.random() - 0.5) * 20}deg)`,
+      `translateY(${(Math.random() - 0.5) * 8}px) scaleX(${0.8 + Math.random() * 0.4})`,
+      `translateX(${(Math.random() - 0.5) * 12}px) scaleY(${0.8 + Math.random() * 0.4})`,
+      'translateX(0) translateY(0)'
+    ];
+    
+    img.style.transform = glitchEffects[Math.floor(Math.random() * glitchEffects.length)];
+    img.style.opacity = Math.random() > 0.3 ? '1' : '0.5';
+    // Adding a more "pixely" feel with filter
+    img.style.filter = Math.random() > 0.6 ? 'contrast(2) brightness(1.5)' : 'none';
+    
+    glitchCounter++;
+  }, glitchInterval);
+}
+
+/**
+ * Apply continuous small jitter to an element
+ */
+function startContinuousJitter(element) {
+  const jitterInterval = setInterval(() => {
+    if (!element.isConnected) {
+      clearInterval(jitterInterval);
+      return;
+    }
+    
+    // Small pixel jitter
+    const tx = Math.floor((Math.random() - 0.5) * 3); 
+    const ty = Math.floor((Math.random() - 0.5) * 3);
+    
+    element.style.transform = `translate(${tx}px, ${ty}px)`;
+    
+  }, 60);
+}
+
+/**
+ * Transition to black background with pixelated glitch effect
+ */
+function startBlackPixelatedTransition() {
+  return new Promise((resolve) => {
+    // Create overlay canvas
+    const canvas = document.createElement('canvas')
+    canvas.id = 'black-glitch-canvas'
+    canvas.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1999;
+    `
+    document.body.appendChild(canvas)
+    
+    const ctx = canvas.getContext('2d')
+    canvas.width = window.innerWidth
+    canvas.height = window.innerHeight
+    
+    const pixelSize = 16 
+    const cols = Math.ceil(canvas.width / pixelSize)
+    const rows = Math.ceil(canvas.height / pixelSize)
+    
+    // Create array of all pixel positions
+    const pixels = []
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        pixels.push({ x, y })
+      }
+    }
+    
+    // Shuffle pixels
+    for (let i = pixels.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[pixels[i], pixels[j]] = [pixels[j], pixels[i]]
+    }
+    
+    let currentIndex = 0
+    const totalPixels = pixels.length
+    const duration = 1200 // 1.2 seconds
+    const pixelsPerFrame = Math.ceil(totalPixels / (duration / 16))
+    
+    function fillPixels() {
+      const batchSize = Math.max(1, Math.floor(pixelsPerFrame * (0.5 + Math.random() * 1.5)))
+      
+      ctx.fillStyle = '#000000'
+      
+      for (let i = 0; i < batchSize && currentIndex < pixels.length; i++) {
+        const pixel = pixels[currentIndex]
+        // Random size variation for glitchy effect
+        const sizeVariation = Math.random() > 0.8 ? pixelSize * (0.5 + Math.random()) : pixelSize
+        ctx.fillRect(pixel.x * pixelSize, pixel.y * pixelSize, sizeVariation, sizeVariation)
+        currentIndex++
+      }
+      
+      if (currentIndex < pixels.length) {
+        requestAnimationFrame(fillPixels)
+      } else {
+        // Transition complete
+        // Create a solid black backing to ensure full coverage
+        const blackOverlay = document.createElement('div')
+        blackOverlay.id = 'black-screen-overlay'
+        blackOverlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 1998;
+        `
+        document.body.appendChild(blackOverlay)
+        
+        // Start persistent glitch effect on the canvas
+        startBlackVoidGlitch(canvas, ctx, cols, rows, pixelSize)
+        resolve()
+      }
+    }
+    
+    requestAnimationFrame(fillPixels)
+  })
+}
+
+function startBlackVoidGlitch(canvas, ctx, cols, rows, pixelSize) {
+  // Very subtle dark grey glitches to simulate digital void
+  const glitchColors = ['#080808', '#111111', '#000000', '#050505']
+  
+  function drawGlitch() {
+    if (!canvas.isConnected) return
+    
+    const glitchCount = 5 + Math.floor(Math.random() * 10)
+    
+    for (let i = 0; i < glitchCount; i++) {
+      const x = Math.floor(Math.random() * cols) * pixelSize
+      const y = Math.floor(Math.random() * rows) * pixelSize
+      const w = (1 + Math.floor(Math.random() * 4)) * pixelSize
+      const h = (1 + Math.floor(Math.random() * 2)) * pixelSize
+      
+      ctx.fillStyle = glitchColors[Math.floor(Math.random() * glitchColors.length)]
+      ctx.fillRect(x, y, w, h)
+    }
+    
+    // Occasional "dead pixel" cluster
+    if (Math.random() > 0.95) {
+       const x = Math.floor(Math.random() * cols) * pixelSize
+       const y = Math.floor(Math.random() * rows) * pixelSize
+       ctx.fillStyle = '#1a1a1a' // Slightly lighter grey
+       ctx.fillRect(x, y, pixelSize, pixelSize)
+    }
+
+    setTimeout(drawGlitch, 50 + Math.random() * 150)
+  }
+  
+  drawGlitch()
 }

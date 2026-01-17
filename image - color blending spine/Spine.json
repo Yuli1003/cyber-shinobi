@@ -1,0 +1,12 @@
+{"skeleton":{"images":""},
+"bones":[{"name":"root"}],
+"slots":[
+	{"name":"image - color blending mode","bone":"root","attachment":"image - color blending mode"}
+],
+"skins":{
+	"default":{
+		"image - color blending mode":{"image - color blending mode":{"x":1783.5,"y":649,"width":485,"height":512}}
+	}
+},
+"animations":{"animation":{}}
+}

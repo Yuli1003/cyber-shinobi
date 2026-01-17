@@ -1,7 +1,6 @@
 {"skeleton":{"images":""},
 "bones":[{"name":"root"}],
 "slots":[
-	{"name":"slice1","bone":"root","attachment":"slice1"},
 	{"name":"slice214","bone":"root","attachment":"slice214"},
 	{"name":"slice213","bone":"root","attachment":"slice213"},
 	{"name":"slice212","bone":"root","attachment":"slice212"},
@@ -218,7 +217,6 @@
 ],
 "skins":{
 	"default":{
-		"slice1":{"slice1":{"x":442.5,"y":215.5,"width":433,"height":433}},
 		"slice214":{"slice214":{"x":388,"y":0,"width":26,"height":26}},
 		"slice213":{"slice213":{"x":588,"y":0,"width":26,"height":26}},
 		"slice212":{"slice212":{"x":563,"y":0,"width":26,"height":26}},

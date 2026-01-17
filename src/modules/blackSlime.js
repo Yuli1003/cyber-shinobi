@@ -53,7 +53,7 @@ export function startBlackSlime() {
     width: 100%;
     height: 100%;
     pointer-events: none;
-    z-index: 9999;
+    z-index: 1998;
     overflow: hidden;
   `
   const canvas = document.getElementById('main-canvas')
@@ -249,7 +249,7 @@ function startBlackout() {
     height: 100vh;
     background: black;
     opacity: 0;
-    z-index: 10000;
+    z-index: 1998;
     pointer-events: none;
     transition: opacity ${CONFIG.blackoutDuration}ms ease-in;
   `
