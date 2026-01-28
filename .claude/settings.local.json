@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls \"c:\\\\Users\\\\yulia\\\\School\\\\cyber-shinobi\\\\windows spine\"\" 2>/dev/null || dir \"c:UsersyuliaSchoolcyber-shinobiwindows spine\"\")"
+    ]
+  }
+}

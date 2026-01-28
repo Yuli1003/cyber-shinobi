@@ -11,6 +11,7 @@ const SHURIKEN_DEBUG_MODE = false
 import { createPixelInterference, randomFloat, resetSeed } from './utils.js'
 import { apps } from '../apps.js'
 import { glitchAllDesktopIcons } from './desktop.js'
+import { startChaosSequence } from './chaosSequence.js'
 import { triggerPixelDisintegration } from './lockscreen.js'
 import { startBlackSlime } from './blackSlime.js'
 
@@ -766,7 +767,6 @@ export async function spawnReadmeFiles() {
             cursor: pointer;
             z-index: 999;
             opacity: 0;
-            transition: opacity 0.2s;
           `
           
           // Store the target data on the element
@@ -827,7 +827,6 @@ export async function spawnReadmeFiles() {
              
              overlay.addEventListener('click', () => {
                overlay.remove()
-               startBlackSlime() // Ensure this is available in scope or global
                glitchyLabelDisappear()
                setTimeout(animateFilesToNinjaStar, 200)
              }, { once: true })
@@ -959,17 +958,11 @@ function animateFilesToNinjaStar() {
   setTimeout(() => {
     // Step 16: Glitch all desktop icons and change them to new versions
     glitchAllDesktopIcons()
-    
-    // Enable desktop interactions after the flow is complete
-    if (window.enableAllDesktopInteractions) {
-      setTimeout(() => {
-        window.enableAllDesktopInteractions()
-      }, 1000)
-    }
-    // After the chaos flow fully ends, make the screen go black after 10s
+
+    // Auto-start chaos sequence after icon glitch
     setTimeout(() => {
-      createBlackScreen()
-    }, 30000)
+      startChaosSequence()
+    }, 1000)
   }, totalAnimationTime)
 }
 

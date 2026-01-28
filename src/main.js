@@ -29,6 +29,7 @@ import {
   enableAllDesktopInteractions
 } from './modules/desktop.js'
 import { initLockScreen } from './modules/lockscreen.js'
+import { runLoginAutomation, runReadmeAutomation, removeFakeCursor } from './modules/autoMouse.js'
 
 // Global state
 const windowManager = new WindowManager()
@@ -120,6 +121,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // Spawn README files shortly after the desktop appears
     setTimeout(() => {
       spawnReadmeFiles()
+
+      // Run README automation after files spawn
+      setTimeout(() => {
+        runReadmeAutomation()
+      }, 500)
     }, 500)
   })
+
+  // Start login automation after a brief delay
+  setTimeout(() => {
+    runLoginAutomation()
+  }, 800)
 })

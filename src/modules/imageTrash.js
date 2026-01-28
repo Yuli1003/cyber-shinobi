@@ -34,6 +34,7 @@ export async function startImageTrash() {
     document.body.appendChild(trashContainer)
   }
 
+  // Play the slime GIF
   try {
     await loadSpineData()
     // Sort data for "Top to Bottom" appearance
@@ -172,3 +173,4 @@ function createTrashImage(data, canvasHeight) {
     img.style.transform = 'translate(-50%, -50%) scale(1)'
   })
 }
+

@@ -8,8 +8,16 @@ let isActive = false
 let spineData = [] // Stores {x, y, width, height, attachment}
 let tileStates = [] // 0 = closed (show slice), 1 = open (show number)
 let tileNumbers = [] // Random numbers
+let onRevealComplete = null // Callback when all tiles are revealed
 
 const ASSET_BASE_PATH = 'mine spine/'
+
+/**
+ * Set callback for when tile reveal animation completes
+ */
+export function setOnMinesweeperRevealComplete(callback) {
+  onRevealComplete = callback
+}
 
 /**
  * Start the minesweeper game/display
@@ -225,9 +233,13 @@ function animateSequentialReveal() {
   const interval = setInterval(() => {
     if (!isActive || index >= total) {
       clearInterval(interval)
+      // Notify that reveal is complete
+      if (onRevealComplete) {
+        onRevealComplete()
+      }
       return
     }
-    
+
     // Reveal a batch at a time
     const batchSize = 10
     for (let i=0; i<batchSize && index<total; i++) {
@@ -235,6 +247,6 @@ function animateSequentialReveal() {
         index++
     }
     renderTiles()
-    
+
   }, 20)
 }

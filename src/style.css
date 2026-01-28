@@ -2019,3 +2019,15 @@ Fog overlay container
   will-change: opacity;
 }
 
+/* ============================================
+   FAKE CURSOR AUTOMATION
+   ============================================ */
+
+#fake-cursor {
+  image-rendering: pixelated;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: crisp-edges;
+  filter: drop-shadow(1px 1px 1px rgba(0, 0, 0, 0.3));
+  will-change: left, top, transform, opacity;
+}
+
