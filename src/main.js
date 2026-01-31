@@ -18,6 +18,7 @@ import {
   showAntivirusPopup,
   spawnReadmeFiles
 } from './modules/antivirus.js'
+import { playSequenceAudio } from './modules/chaosSequence.js'
 import { 
   initDesktop as initDesktopModule, 
   createDesktopIcons, 
@@ -30,6 +31,7 @@ import {
 } from './modules/desktop.js'
 import { initLockScreen } from './modules/lockscreen.js'
 import { runLoginAutomation, runReadmeAutomation, removeFakeCursor } from './modules/autoMouse.js'
+import { startChaosSequence, setOnSequenceComplete, stopChaosSequence } from './modules/chaosSequence.js'
 
 // Global state
 const windowManager = new WindowManager()
@@ -77,6 +79,115 @@ function openApp(appId, x, y) {
 }
 
 /**
+ * Reset UI back to login screen so the sequence can run again.
+ * Cleans up chaos sequence overlays and shows lock screen.
+ */
+function resetToLoginScreen() {
+  stopChaosSequence()
+
+  const lockScreen = document.getElementById('lock-screen')
+  const desktop = document.getElementById('desktop')
+  const loginForm = document.getElementById('login-form')
+  const usernameInput = document.getElementById('username')
+  const passwordInput = document.getElementById('password')
+  const loginBox = document.querySelector('.lock-screen-box')
+
+  if (lockScreen) {
+    lockScreen.style.display = ''
+    lockScreen.classList.remove('hidden')
+  }
+  if (desktop) desktop.classList.add('hidden')
+  if (usernameInput) usernameInput.value = ''
+  if (passwordInput) passwordInput.value = ''
+  if (loginBox) loginBox.classList.remove('disintegrating')
+  if (loginForm) loginForm.classList.remove('shake')
+
+  // Remove any leftover overlays from chaos sequence
+  const blackOverlay = document.getElementById('black-screen-overlay')
+  const redOverlay = document.getElementById('red-screen-overlay')
+  if (blackOverlay) blackOverlay.remove()
+  if (redOverlay) redOverlay.remove()
+}
+
+/**
+ * Show "Press Space to start" and run login automation when space is pressed.
+ */
+function waitForSpaceToStart() {
+  const overlay = document.createElement('div')
+  overlay.id = 'press-space-overlay'
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    pointer-events: none;
+  `
+  const text = document.createElement('div')
+  text.textContent = ''
+  text.style.cssText = `
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 0 10px #00ff41;
+  `
+  overlay.appendChild(text)
+  document.body.appendChild(overlay)
+
+  function onSpace(e) {
+    if (e.code !== 'Space') return
+    e.preventDefault()
+    document.removeEventListener('keydown', onSpace)
+    overlay.remove()
+    setTimeout(() => {
+      playSequenceAudio() // Start music 2 seconds after Space press
+    }, 2800)
+    runLoginAutomation()
+  }
+  document.addEventListener('keydown', onSpace)
+}
+
+/**
+ * Show "Press Space to replay" and run callback when space is pressed.
+ */
+function waitForSpaceThenRerun() {
+  const overlay = document.createElement('div')
+  overlay.id = 'press-space-overlay'
+  overlay.style.cssText = `
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.7);
+    pointer-events: none;
+  `
+  const text = document.createElement('div')
+  text.textContent = ' '
+  text.style.cssText = `
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 24px;
+    color: #fff;
+    text-shadow: 0 0 10px #00ff41;
+  `
+  overlay.appendChild(text)
+  document.body.appendChild(overlay)
+
+  function onSpace(e) {
+    if (e.code !== 'Space') return
+    e.preventDefault()
+    document.removeEventListener('keydown', onSpace)
+    overlay.remove()
+    resetToLoginScreen()
+    setTimeout(() => runLoginAutomation(), 300)
+  }
+  document.addEventListener('keydown', onSpace)
+}
+
+/**
  * DOM Ready - Initialize application
  */
 document.addEventListener('DOMContentLoaded', () => {
@@ -105,6 +216,9 @@ document.addEventListener('DOMContentLoaded', () => {
     return
   }
   
+  // When sequence ends (after Phase 3), wait for spacebar then reset and rerun from login
+  setOnSequenceComplete(waitForSpaceThenRerun)
+
   // Normal flow: Start from login screen
   // After successful login show the regular desktop and immediately spawn README files
   initLockScreen(() => {
@@ -122,15 +236,17 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
       spawnReadmeFiles()
 
-      // Run README automation after files spawn
+      // Run README automation, then start chaos sequence (login → desktop → README → Phase 1–3)
       setTimeout(() => {
-        runReadmeAutomation()
+        runReadmeAutomation().then(() => {
+          startChaosSequence()
+        })
       }, 500)
     }, 500)
   })
 
-  // Start login automation after a brief delay
+  // Show "Press Space to start" and begin login automation only after space is pressed
   setTimeout(() => {
-    runLoginAutomation()
+    waitForSpaceToStart()
   }, 800)
 })

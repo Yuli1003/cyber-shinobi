@@ -12,12 +12,38 @@
 
 import { startPhase1, setOnBlackScreenComplete as setOnPhase1BlackComplete, cleanupPhase1 } from './phase1-iconToBlack.js'
 import { startPhase2, setOnRedScreenComplete as setOnPhase2RedComplete, cleanupPhase2 } from './phase2-blackToRed.js'
-import { startPhase3, cleanupPhase3 } from './phase3-redToEnd.js'
+import { startPhase3, cleanupPhase3, setOnBlackScreenComplete as setOnPhase3BlackComplete } from './phase3-redToEnd.js'
 
 let isSequenceActive = false
+let onSequenceComplete = null
 
 export function isChaosSequenceActive() {
   return isSequenceActive
+}
+
+/**
+ * Set callback when the full sequence (through end of Phase 3) completes.
+ * Used for loop: wait for spacebar then rerun from login.
+ */
+export function setOnSequenceComplete(callback) {
+  onSequenceComplete = callback
+}
+
+// Store audio globally so it can be played from anywhere
+let sequenceAudio = null
+
+/** Initialize and play sequence audio. Call this when user clicks play/README. */
+export function playSequenceAudio() {
+  if (!sequenceAudio) {
+    sequenceAudio = new Audio('/cyber-shinobi/sequence-audio.m4a')
+    sequenceAudio.volume = 1.0
+    sequenceAudio.loop = false
+  }
+  
+  sequenceAudio.currentTime = 0
+  sequenceAudio.play().catch(err => {
+    console.warn('Audio play failed:', err)
+  })
 }
 
 /**
@@ -28,6 +54,14 @@ export async function startChaosSequence() {
   isSequenceActive = true
 
   console.log('🌀 Starting Chaos Sequence...')
+
+  // When Phase 3 ends (black screen), cleanup and notify for loop
+  setOnPhase3BlackComplete(() => {
+    console.log('🔚 Phase 3 complete (end of sequence)')
+    cleanupPhase3()
+    isSequenceActive = false
+    if (onSequenceComplete) onSequenceComplete()
+  })
 
   // Set up phase transitions (NEW ORDER: Phase 1 → Phase 2 → Phase 3)
   setOnPhase1BlackComplete(() => {

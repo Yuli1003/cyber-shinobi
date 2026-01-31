@@ -8,47 +8,6 @@ let fakeCursor = null
 let isAutomating = false
 let currentX = 0
 let currentY = 0
-let backgroundMusic = null
-
-/**
- * Initialize and play background music
- */
-function playBackgroundMusic() {
-  if (backgroundMusic) return // Already playing
-
-  // URL encode the filename to handle the emoji
-  const audioPath = encodeURI('Uptempo_music.mp3')
-  backgroundMusic = new Audio(audioPath)
-  backgroundMusic.loop = true
-  backgroundMusic.volume = 0.7
-
-  const playPromise = backgroundMusic.play()
-
-  if (playPromise !== undefined) {
-    playPromise.catch(err => {
-      console.log('Audio autoplay blocked, adding click listener:', err)
-      // If autoplay is blocked, play on first real user interaction
-      const playOnClick = () => {
-        backgroundMusic.play()
-        document.removeEventListener('click', playOnClick)
-        document.removeEventListener('keydown', playOnClick)
-      }
-      document.addEventListener('click', playOnClick)
-      document.addEventListener('keydown', playOnClick)
-    })
-  }
-}
-
-/**
- * Stop background music
- */
-export function stopBackgroundMusic() {
-  if (backgroundMusic) {
-    backgroundMusic.pause()
-    backgroundMusic.currentTime = 0
-    backgroundMusic = null
-  }
-}
 
 /**
  * Initialize the fake cursor element
@@ -332,9 +291,6 @@ export async function runLoginAutomation() {
   // Move to login button and click
   await moveTo(loginButton, true, 400)
 
-  // Start playing background music when entering
-  playBackgroundMusic()
-
   // Keep cursor visible during transition
   await wait(1000)
 
@@ -371,8 +327,21 @@ export async function runReadmeAutomation() {
   // Double-click to open
   await dblClickElement(readmeFile)
 
+  // Wait for README window to open, then click top right (close button)
+  await wait(600)
+  const readmeWindow = [...document.querySelectorAll('.window')].find(
+    (el) => el.querySelector('.window-title span:last-child')?.textContent?.includes('README')
+  )
+  if (readmeWindow) {
+    const closeBtn = readmeWindow.querySelector('.window-controls .close-btn')
+    if (closeBtn) {
+      await moveTo(closeBtn, true, 500)
+      await wait(300)
+    }
+  }
+
   // Wait 10 seconds as requested
-  await wait(8000)
+  await wait(4000)
 
   // Find and click the overlay to close it
   const overlay = document.querySelector('div[style*="z-index: 2000"]')

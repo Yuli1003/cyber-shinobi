@@ -11,7 +11,7 @@ const SHURIKEN_DEBUG_MODE = false
 import { createPixelInterference, randomFloat, resetSeed } from './utils.js'
 import { apps } from '../apps.js'
 import { glitchAllDesktopIcons } from './desktop.js'
-import { startChaosSequence } from './chaosSequence.js'
+import { startChaosSequence, playSequenceAudio } from './chaosSequence.js'
 import { triggerPixelDisintegration } from './lockscreen.js'
 import { startBlackSlime } from './blackSlime.js'
 
